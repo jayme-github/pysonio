@@ -1,11 +1,15 @@
 import os
 import stat
 import logging
+import re
 from requests import Session
 from http.cookiejar import LWPCookieJar
 from bs4 import BeautifulSoup
 
+import pysonio.attendance as attendance
+
 DEFAULT_USERAGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0'  # noqa: E501
+RE_EMPLOYEEID = re.compile(r'\/staff\/details\/(\d+$)')
 
 
 class Browser(object):
@@ -14,6 +18,7 @@ class Browser(object):
         self._username = username
         self._password = password
         self._csrf = None
+        self._employee_id = None
         self.logger.info('Initialized with user: %s', self._username)
         self.session = Session()
         self.set_useragent()
@@ -41,6 +46,9 @@ class Browser(object):
         self.session.headers.update({'User-Agent': useragent})
         self.logger.debug('User-Agent set to: "%s"', useragent)
 
+    def set_csrf_token(self, token):
+        self.session.headers.update({'x-csrf-token': token})
+
     def _save_cookies(self):
         self.logger.debug('Saving cookies to disk')
         return self.session.cookies.save(ignore_discard=True)
@@ -55,50 +63,59 @@ class Browser(object):
     def get(self, url, **kwargs):
         self.logger.debug('GET "%s", kwargs: "%s"', url, kwargs)
         h = self._hash_cookies()
+        if 'allow_redirects' not in kwargs:
+            kwargs['allow_redirects'] = False
         r = self.session.get(url, **kwargs)
+
+        if url != self._url + '/login/index' and \
+                r.status_code in (301, 302) and \
+                r.headers.get('Location') == self._url + '/login/index':
+            # Session expired, login again
+            self.logger.warning(
+                    'Session expired while GET, trying to login again'
+            )
+            if self.login():
+                self.logger.info('Login during GET: success!')
+                return self.get(url, **kwargs)
+            else:
+                self.logger.error('Login failed during GET')
+
         # Will raise HTTPError on 4XX client error or 5XX server error response
         r.raise_for_status()
         if h != self._hash_cookies():
             # Cookies have changed
             self._save_cookies()
 
-        # FIXME: Handle expired session
-        if r.history and 'login/home/?goto=' in r.url:
-            # Session expired, login again
-            self.logger.warning(
-                    'Session expired while GET, trying to login again'
-            )
-            if self.login():
-                return self.get(url, **kwargs)
-            else:
-                self.logger.error('Login failed during GET')
-        else:
-            return r
+        return r
 
     def post(self, url, data=None, **kwargs):
         self.logger.debug(
                 'POST "%s", data: "%s", kwargs: "%s"', url, data, kwargs
         )
         h = self._hash_cookies()
+        if 'allow_redirects' not in kwargs:
+            kwargs['allow_redirects'] = False
         r = self.session.post(url, data, **kwargs)
+
+        if url != self._url + '/login/index' and \
+                r.status_code in (301, 302) and \
+                r.headers.get('Location') == self._url + '/login/index':
+            self.logger.warning(
+                    'Session expired while POST, trying to login again'
+            )
+            if self.login():
+                self.logger.info('Login during POST: success!')
+                return self.post(url, data, **kwargs)
+            else:
+                self.logger.error('Login failed during POST')
+
         # Will raise HTTPError on 4XX client error or 5XX server error response
         r.raise_for_status()
         if h != self._hash_cookies():
             # Cookies have changed
             self._save_cookies()
 
-        # FIXME: Handle expired session
-        if r.history and 'login/home/?goto=' in r.url:
-            # Session expired, login again
-            self.logger.warning(
-                    'Session expired while POST, trying to login again'
-            )
-            if self.login():
-                return self.post(url, data, **kwargs)
-            else:
-                self.logger.error('Login failed during POST')
-        else:
-            return r
+        return r
 
     @staticmethod
     def _handle_emailtoken():  # pylint:disable=unused-argument
@@ -116,8 +133,25 @@ class Browser(object):
         return email_token
 
     def login(self):
+        def _logged_in(r):
+            if r.status_code in (301, 302):
+                r = self.get(self._url + '/staff/me', allow_redirects=True)
+                # Store employee id
+                m = RE_EMPLOYEEID.search(r.url)
+                if m:
+                    self._employee_id = int(m.group(1))
+                    self.logger.info('Employee ID: %d', self._employee_id)
+                else:
+                    return False
+
+            if 'logout' in r.text:
+                self.logger.debug('Login successful')
+                return True
+
+            return False
+
+        url = self._url + '/login/index'
         if not self._csrf:
-            url = self._url + '/login/index'
             r = self.get(url)
             r.raise_for_status()
             soup = BeautifulSoup(r.content, 'html.parser')
@@ -126,6 +160,7 @@ class Browser(object):
                 'type': 'hidden'
             }
             self._csrf = soup.find('input', attrs=attrs).get('value')
+            self.set_csrf_token(self._csrf)
             self.logger.debug('CSRF Token: %s', self._csrf)
             del(soup)
 
@@ -135,12 +170,10 @@ class Browser(object):
             'password': self._password
         }
         r = self.post(url, data)
-
-        if 'logout' in r.text:
-            self.logger.debug('Login successful')
+        if _logged_in(r):
             return True
 
-        # Check if token auth is required
+        # FIXME: Check if token auth is required
         token_url = self._url + '/login/token-auth'  # noqa: E501
         soup = BeautifulSoup(r.content, 'html.parser')
 
@@ -158,8 +191,34 @@ class Browser(object):
                 'token': email_token
             }
             r = self.post(token_url, data)
-            if 'logout' in r.text:
-                self.logger.debug('Login successful')
+            if _logged_in(r):
                 return True
 
         return False
+
+    def post_attendance(self, attendance_data):
+        if isinstance(attendance_data, attendance.AttendanceRow):
+            rows = repr([attendance_data])
+        elif isinstance(attendance_data, attendance.AttendanceDay):
+            rows = repr(attendance_data)
+        else:
+            raise ValueError(
+                    'attendance_data must be of type AttandenceRow or \
+                    AttendenceDay'
+            )
+
+        if self._employee_id is None:
+            self.login()
+
+        url = '{}/attendance/update-date/{}'.format(
+                self._url, self._employee_id
+        )
+
+        data = {
+                'rows': rows
+        }
+        r = self.post(url, data)
+        rj = r.json()
+        if rj['status'] == 'error':
+            self.logger.error(rj['message'])
+        return rj
