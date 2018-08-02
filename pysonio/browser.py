@@ -204,7 +204,7 @@ class Browser(object):
         else:
             raise ValueError(
                     'attendance_data must be of type AttandenceRow or \
-                    AttendenceDay'
+AttendenceDay'
             )
 
         if self._employee_id is None:
