@@ -1,10 +1,10 @@
 
-fmtStr = '{"id":"%s","date":"%s","startTime":"%s","endTime":"%s","break":"%d","comment":"%s","index":%d}'  # noqa: E501
+fmtStr = '{"id":%s,"date":"%s","startTime":"%s","endTime":"%s","break":"%d","comment":"%s","index":%d}'  # noqa: E501
 
 
 class AttendanceRow(object):
     def __init__(self, date, start_time, end_time, break_minutes=0,
-                 comment='', row_id="", index=0):
+                 comment='', row_id=None, index=0):
         self.row_id = row_id
         self.date = date
         self.start_time = start_time
@@ -15,7 +15,7 @@ class AttendanceRow(object):
 
     def __repr__(self):
         return fmtStr % (
-                            self.row_id,
+                            "null" if self.row_id is None else self.row_id,
                             self.date.strftime('%s'),
                             self.start_time.strftime('%H:%M'),
                             self.end_time.strftime('%H:%M'),
