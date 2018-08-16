@@ -13,7 +13,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='pysonio',
-    version='0.1',
+    version='0.0.1',
     description='incomplete library to personio time tracking',
     long_description=long_description,
     long_description_content_type='text/markdown',
