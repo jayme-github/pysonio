@@ -23,6 +23,13 @@ deploy:
       repo: jayme-github/pysonio
       tags: true
       condition: "$LATEST = true"
+  - provider: script
+    script:
+       - find dist/
+    on:
+      repo: jayme-github/pysonio
+      tags: true
+      condition: "$LATEST = true"
   - provider: releases
     skip_cleanup: true
     api_key:
