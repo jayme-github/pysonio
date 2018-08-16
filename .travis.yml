@@ -24,8 +24,9 @@ deploy:
       tags: true
       condition: "$LATEST = true"
   - provider: script
+    skip_cleanup: true
     script:
-       - find dist/
+       - find .
     on:
       repo: jayme-github/pysonio
       tags: true
