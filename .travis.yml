@@ -13,23 +13,22 @@ script:
   ./setup.py test
 
 deploy:
-deploy:
- - provider: releases
-   skip_cleanup: true
-   api_key:
-     secure: D6zUa6GJWwyykS40t7CKitf8vuXqeGWQBpdE8cimcWmsWu158PIcEG6QNBIDBdZw8t2nxy6n9xqxKnYUYU4rw5UPu9hHCrTCEycMj07uVHvIOt74QU8js9cKjz2aD/Cm4huQDsgSIgy2mguC1qeKjjjGl4m0OKLfMWpB7F9m+1ysTKeghtRj40fzNPzVWeKOpCVBYlX/IvHBV+ObXy25dCOofoCD5QvQafRqQ6g0uRg5bqvDe9ZTly8JmbZhkc0eovxPMQQ7e8Q68nStz/ph+ME/iZEppCBc5JpDMHAlAPS4uO57ZOLsmqIZ8rBUNx+5nKy47z/ERueCezp8bwT2Bdz+SguP1IJSHNTMDilGzIC4VfKxaQE5GMwvkJG21mCG24ny2f5ZWDoXbRR7OdSN1B6wamNOfsMT/CYDfxtnoatkqhwepYtN8RWiBaMawwX/GhJib4xUM/n3lJC13K+c2q5moVdaryN270VdON4XdC+7mgZ9bklVzNFNYVAtAGlZi02AHa/BoTM73X0gtiK8JdgIXEZKLN6h3q0ufLbjRc6NAnyLiXi9B5UeTrKpx4g9lhbS9eKTvLim1gUVd2dyy3uw3mFBLXCjYhqeWzm4+8lwRwInV3iph9/raaYQ/bC7abxYO7zOo3cIeFx3NCltRLCQXpn4RQxJfYN09cYRlV8=
-   file_glob: true
-   file: dist/pysonio*
-   on:
-     repo: jayme-github/pysonio
-     tags: true
-     condition: "$LATEST = true"
- - provider: pypi
-   distributions: "sdist bdist_wheel"
-   user: jayme-pypi
-   password:
-     secure: OVzVLeEFwPLtrsYaGjkhv5r/47Z8T4JOw6qxULDltaueqKlVszl5cuxo7Tgt41NI71fcTbOH+OegIANNaAa7utwihhnJLBLwwvTQJ5qHVh8O7QRgC1NyHILaw8lAyQKtHKCOBSZ/EpyQXJZ8sKrxvJ9IgkPL0RSFy1FWBxXtYhaDTfdRpIdbs+G8X/UcTgtHW8zhtJC5qFE9Yu17SV8NDWMz/dOHGPnlCoxQYaVZ3duVJ3gNdN0LFjj+Tk9p71nZa4L7H/ufxBO1r1DHRPsRaXCR7HKQ+9qsmO1Q2bggPOb9LqjwZS7HZIvbrxsfSceF+figMVAe/YajoJZ8tva+0Bdinl55RXeIp30ZhLG64EcGLsPCZv6PNsmvubYl0SHvOUZjv16zxH/HlMemoHVg6yuIt99p/L/KHhaYU2BVyMCNa9GdCOJ/awMYjxB2HhAWKO0j3sdYcaDiHM1/84fzbWNQwpxcVcD6eOE5K+I9Q5gSvPcbafyfrbraNK6s5cUUQcnh4jemuyPuMpHkU01NWLkvKjxX4ivislZ8CYVAKKjRFWsbPvC8BN5j8exxxi2KJRLftTOQXzzwX6AgScMDr0hHBzU6jFfcv/V5jecROSCIxye2NihxvDw2r1EtP9ReFpF/OgeQwmV4quXXWxtTapOJdS6Jsjx20/vRnDZS0Ak=
-   on:
-     repo: jayme-github/pysonio
-     tags: true
-     condition: "$LATEST = true"
+  - provider: releases
+    skip_cleanup: true
+    api_key:
+      secure: G8islO8E/lfgDsy8vffCmaXHt51c7mBio38Lqc8jNFH/jqYlhlegn1J895fYhYs/mZhHtZgGzJjS1ibU/dNwbNsVv2stjyVPgvF0/+Nv6VI4wsML2BiZxb5CapkZSKGekQAaiQ2qamdr6IO9n+/DO1dtynUsTzPjw6+AFgYQTwtWbFZwf7qOMJwYORuPgbaPhtogx1KYlLrQZ36oVpCkBt6mpiixvO9M6YsgQg29BX6Oxk0uZxTuyOGHDaocqF2A6FuL59YPRw9cgMawOIVVFW4oh9Pi1ALtE0ZK7GdJl5RyFnYhp3dKE9sIn1yDw+/QmmGtJo7O5FgcbdBuqEG5x7mQ5A5tHJLSzKBGogwLNRuuGQhybZGKxNn7VQcyBD6wi88p9tYsN7Uj0DEbKGCvx2pw0Sqd/4XLSM4r7ZqTzcU+ufF8/h4+MKPV4JRy2S+yKlCKW89vVy7ApDs3BZIub71zX0BEqweEBuzxyy5IfLQwAfMr9oDPw76LYc8z/zkZYe7a2X266dhHdwaSJMdtr0491NVTy4ICyRDZ7mo+dYGSEJW1LdTUqxIqrTulnGANAq79sKaa39Xm3K3e4epWn64/nsIVaKVgLUgSsihuzLU1jJBB98CpP2+6wILLvWqE6C9i8d955wBwoUjoVYqgB7U22Z6Uk3FJcwUXK5lKbCU=
+    file_glob: true
+    file: dist/pysonio*
+    on:
+      repo: jayme-github/pysonio
+      tags: true
+      condition: "$LATEST = true"
+  - provider: pypi
+    distributions: "sdist bdist_wheel"
+    user: jayme-pypi
+    password:
+      secure: OVzVLeEFwPLtrsYaGjkhv5r/47Z8T4JOw6qxULDltaueqKlVszl5cuxo7Tgt41NI71fcTbOH+OegIANNaAa7utwihhnJLBLwwvTQJ5qHVh8O7QRgC1NyHILaw8lAyQKtHKCOBSZ/EpyQXJZ8sKrxvJ9IgkPL0RSFy1FWBxXtYhaDTfdRpIdbs+G8X/UcTgtHW8zhtJC5qFE9Yu17SV8NDWMz/dOHGPnlCoxQYaVZ3duVJ3gNdN0LFjj+Tk9p71nZa4L7H/ufxBO1r1DHRPsRaXCR7HKQ+9qsmO1Q2bggPOb9LqjwZS7HZIvbrxsfSceF+figMVAe/YajoJZ8tva+0Bdinl55RXeIp30ZhLG64EcGLsPCZv6PNsmvubYl0SHvOUZjv16zxH/HlMemoHVg6yuIt99p/L/KHhaYU2BVyMCNa9GdCOJ/awMYjxB2HhAWKO0j3sdYcaDiHM1/84fzbWNQwpxcVcD6eOE5K+I9Q5gSvPcbafyfrbraNK6s5cUUQcnh4jemuyPuMpHkU01NWLkvKjxX4ivislZ8CYVAKKjRFWsbPvC8BN5j8exxxi2KJRLftTOQXzzwX6AgScMDr0hHBzU6jFfcv/V5jecROSCIxye2NihxvDw2r1EtP9ReFpF/OgeQwmV4quXXWxtTapOJdS6Jsjx20/vRnDZS0Ak=
+    on:
+      repo: jayme-github/pysonio
+      tags: true
+      condition: "$LATEST = true"
