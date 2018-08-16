@@ -25,11 +25,11 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     license='GNU Affero General Public License v3',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU Affero General Public License v3',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3 :: Only',
     ],
     install_requires=parse_requirements('requirements.txt'),
     # tests_require=parse_requirements('requirements-test.txt'),
