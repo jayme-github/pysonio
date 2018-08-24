@@ -29,7 +29,7 @@ class Browser(object):
             # initialize new cookie file
             self.logger.info('Creating new cookie file: "%s"', cookie_file)
             self._save_cookies()
-            os.chmod(cookie_file,  stat.S_IRUSR | stat.S_IWUSR)
+            os.chmod(cookie_file, stat.S_IRUSR | stat.S_IWUSR)
         else:
             # load cookies
             self.logger.info('Loading cookies from file: "%s"', cookie_file)
