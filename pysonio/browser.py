@@ -152,6 +152,7 @@ class Browser(object):
 
         url = self._url + '/login/index'
         if not self._csrf:
+            self.logger.debug('Fetching CSRF token')
             r = self.get(url)
             r.raise_for_status()
             soup = BeautifulSoup(r.content, 'html.parser')
@@ -170,20 +171,12 @@ class Browser(object):
             'password': self._password
         }
         r = self.post(url, data)
-        if _logged_in(r):
-            return True
 
-        # FIXME: Check if token auth is required
+        # Check if token auth is required
         token_url = self._url + '/login/token-auth'  # noqa: E501
-        soup = BeautifulSoup(r.content, 'html.parser')
-
-        attrs = {
-            'action': token_url,
-            'method': 'POST'
-        }
-        email_token_form = soup.find('form', attrs=attrs)
-        if email_token_form:
-            self.logger.info('Token auth is required')
+        if r.status_code in (301, 302) and \
+                r.headers.get('Location') == token_url:
+            self.logger.debug('Token auth is required')
             email_token = self._handle_emailtoken()
             self.logger.info('E-Mail token: %s', email_token)
             data = {
@@ -191,8 +184,9 @@ class Browser(object):
                 'token': email_token
             }
             r = self.post(token_url, data)
-            if _logged_in(r):
-                return True
+
+        if _logged_in(r):
+            return True
 
         return False
 
